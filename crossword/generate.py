@@ -166,7 +166,7 @@ class CrosswordCreator():
                 if self.domains[x] == set():
                     return False
                 # Add to the queue all neighbors of x (except y) to recheck arc consistency
-                for z in self.crossword.neighbors(x) - y:
+                for z in (self.crossword.neighbors(x) - {y}):
                     queue.append((z, x))
 
         # After going through all arcs and each variable still has values in its domain, we have enforced arc consistency

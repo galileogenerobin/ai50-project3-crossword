@@ -117,7 +117,7 @@ class CrosswordCreator():
         False if no revision was made.
         """
         revised = False
-        # Check if there are no overlaps, no need to revise
+        # Check if there are no overlaps, then no need to revise
         if self.crossword.overlaps[x, y] is None:
             return revised
 

@@ -145,7 +145,33 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+        # Create a queue of arcs
+        if arcs:
+            queue = arcs
+        else:
+            # If no list of arcs provided, create the queue from all arcs (combination of variables with overlaps)
+            queue = []
+            for v1 in self.domains:
+                for v2 in self.domains:
+                    if v1 == v2 or self.crossword.overlaps[v1, v2] == None:
+                        continue
+                    queue.append((v1, v2))
+
+        # Now that our queue is ready, we start with enforcing arc consistency on our arcs
+        while len(queue) > 0:
+            x, y = queue.pop(0)
+            # If there are changes to the domain of the x to make arc consistent with y
+            if self.revise(x, y):
+                # If, after enforcing arc consistency, the domains of x is empty, return False, i.e. no solution
+                if self.domains[x] == set():
+                    return False
+                # Add to the queue all neighbors of x (except y) to recheck arc consistency
+                for z in self.crossword.neighbors(x) - y:
+                    queue.append((z, x))
+
+        # After going through all arcs and each variable still has values in its domain, we have enforced arc consistency
+        return True
+        # raise NotImplementedError
 
     def assignment_complete(self, assignment):
         """

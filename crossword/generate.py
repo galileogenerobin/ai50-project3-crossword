@@ -182,12 +182,13 @@ class CrosswordCreator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        # Iterate through all variables in the assignment and check that each has an assigned value
-        for val in assignment.values():
-            # Check that each cell in the variable has a value
-            if val is None:
+        # Iterate through all variables in the crossword
+        for var in self.crossword.variables:
+            if var not in assignment or assignment[var] is None:
+                # If the variable is not in the assignment or no value assigned yet, return False
                 return False
 
+        # If all variables assigned, return True
         return True
         # raise NotImplementedError
 
@@ -216,11 +217,10 @@ class CrosswordCreator():
             neighbors = self.crossword.neighbors(v1)
             if neighbors:
                 for v2 in neighbors:
-                    word2 = assignment[v2]
                     # For each neighbor, check if a word has been assigned; if so, check overlapping values
-                    if word2:
+                    if v2 in assignment:
                         i, j = self.crossword.overlaps[v1, v2]
-                        if word[i] != word2[j]:
+                        if word[i] != assignment[v2][j]:
                             # If overlapping values are not the same, return False
                             return False
 
@@ -248,8 +248,8 @@ class CrosswordCreator():
         return values.
         """
         # For testing purposes only
-        for var in assignment:
-            if not assignment[var]:
+        for var in self.crossword.variables:
+            if var not in assignment or not assignment[var]:
                 return var
         # raise NotImplementedError
 
@@ -268,7 +268,6 @@ class CrosswordCreator():
 
         # Select an unassigned variable
         var = self.select_unassigned_variable(assignment)
-        print(f'checking variable: {var}')
         
         # Iterate through all words from the variable domain
         for word in self.order_domain_values(var, assignment):

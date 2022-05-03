@@ -178,14 +178,51 @@ class CrosswordCreator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        raise NotImplementedError
+        # Iterate through all variables in the assignment and check that each has an assigned value
+        for val in assignment.values():
+            # Check that each cell in the variable has a value
+            if val is None:
+                return False
+
+        return True
+        # raise NotImplementedError
 
     def consistent(self, assignment):
         """
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
-        raise NotImplementedError
+        # Iterate through all variables in the assignment and check consistency with its neighbors
+        for v1 in assignment:
+            word = assignment[v1]
+            # If no assigned value yet, skip this variable
+            if not word:
+                continue
+            
+            # If with assigned value...
+            # ... 1. check if duplicate value exists in assignment
+            # We do this by getting the list of values in 'assignment', and calling the count function
+            if list(assignment.values()).count(word) > 1:
+                return False
+            # ... 2. check if value is of correct length
+            if len(assignment[v1]) != v1.length:
+                return False
+
+            # ... 3. check neighbors
+            neighbors = self.crossword.neighbors(v1)
+            if neighbors:
+                for v2 in neighbors:
+                    word2 = assignment[v2]
+                    # For each neighbor, check if a word has been assigned; if so, check overlapping values
+                    if word2:
+                        i, j = self.crossword.overlaps[v1, v2]
+                        if word[i] != word2[j]:
+                            # If overlapping values are not the same, return False
+                            return False
+
+        # If, after going through all variables, no inconsistencies were found, return True
+        return True
+        # raise NotImplementedError
 
     def order_domain_values(self, var, assignment):
         """

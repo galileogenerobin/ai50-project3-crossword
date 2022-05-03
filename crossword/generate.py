@@ -235,9 +235,34 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        # For testing purposes only
-        return self.domains[var]
+        # We create a dictionary (which we can sort later) mapping each word in the domain to the number of constrained values
+        domain_values = dict()
+
+        # We map each word in the domain to the number of constrained values
+        for word in self.domains[var]:
+            domain_values[word] = self.constrained_values(word, var, assignment)
+
+        # Then we sort the dictionary we created based on the constrained_values (ascending) and return that list
+        return sorted(domain_values, key=lambda word: domain_values[word])
         # raise NotImplementedError
+
+    def constrained_values(self, word, var, assignment):
+        """
+        Creating our own helper function to get the number of constrained values
+        for a given word in a variable's domain
+        """
+        output = 0
+        # Iterate through all neighboring variables
+        for neighbor in self.crossword.neighbors(var):
+            # If the neighbor is already assigned a value, skip it
+            if neighbor in assignment:
+                continue
+
+            i, j = self.crossword.overlaps[var, neighbor]
+            # Get the number of words from the neighbor that are not consistent with the given word
+            output += len([word2 for word2 in self.domains[neighbor] if word[i] != word2[j]])
+        
+        return output
 
     def select_unassigned_variable(self, assignment):
         """

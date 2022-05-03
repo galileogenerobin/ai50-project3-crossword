@@ -101,8 +101,10 @@ class CrosswordCreator():
         """
         # Loop through each variable and update its domains
         for var in self.domains:
+            # Create a copy of the variable's domain
+            domains_copy = self.domains[var].copy()
             # Loop through each word in the domain and remove it if it doesn't match the variable's length
-            for word in self.domains[var]:
+            for word in domains_copy:
                 if len(word) != var.length:
                     self.domains[var].remove(word)
         # raise NotImplementedError
@@ -124,13 +126,15 @@ class CrosswordCreator():
         # If there is an overlap, get the index values
         x_index, y_index = self.crossword.overlaps[x, y]
 
+        # Create a copy of x variable's domain
+        x_domain = self.domains[x].copy()
         # Loop through all existing values in the domain of x
-        for x_word in self.domains[x]:
+        for x_word in x_domain:
             # Check the words in the domain of y that is consistent with the current word
             consistent_words = [y_word for y_word in self.domains[y] if x_word[x_index] == y_word[y_index]]
             # If no consistent words, remove the word from x's domain and set revised to True
             if len(consistent_words) == 0:
-                self.domains[x].remove[x_word]
+                self.domains[x].remove(x_word)
                 revised = True
 
         return revised
@@ -231,7 +235,9 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        raise NotImplementedError
+        # For testing purposes only
+        return self.domains[var]
+        # raise NotImplementedError
 
     def select_unassigned_variable(self, assignment):
         """
@@ -241,7 +247,11 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        raise NotImplementedError
+        # For testing purposes only
+        for var in assignment:
+            if not assignment[var]:
+                return var
+        # raise NotImplementedError
 
     def backtrack(self, assignment):
         """
@@ -258,6 +268,7 @@ class CrosswordCreator():
 
         # Select an unassigned variable
         var = self.select_unassigned_variable(assignment)
+        print(f'checking variable: {var}')
         
         # Iterate through all words from the variable domain
         for word in self.order_domain_values(var, assignment):

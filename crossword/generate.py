@@ -130,8 +130,8 @@ class CrosswordCreator():
         x_domain = self.domains[x].copy()
         # Loop through all existing values in the domain of x
         for x_word in x_domain:
-            # Check the words in the domain of y that is consistent with the current word
-            consistent_words = [y_word for y_word in self.domains[y] if x_word[x_index] == y_word[y_index]]
+            # Check the words in the domain of y that is consistent with the current word (i.e. overlapping letters are equal, and words are different)
+            consistent_words = [y_word for y_word in self.domains[y] if x_word[x_index] == y_word[y_index] and x_word != y_word]
             # If no consistent words, remove the word from x's domain and set revised to True
             if len(consistent_words) == 0:
                 self.domains[x].remove(x_word)
@@ -235,15 +235,10 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        # We create a dictionary (which we can sort later) mapping each word in the domain to the number of constrained values
-        domain_values = dict()
-
-        # We map each word in the domain to the number of constrained values
-        for word in self.domains[var]:
-            domain_values[word] = self.constrained_values(word, var, assignment)
-
-        # Then we sort the dictionary we created based on the constrained_values (ascending) and return that list
-        return sorted(domain_values, key=lambda word: domain_values[word])
+        # We sort the values in the domain based on the constrained_values (see helper function we created below) and return that list
+        # For sorting purposes, we use a lambda function that returns the # of contrained values for each word
+        # Docs: https://docs.python.org/3/howto/sorting.html
+        return sorted(self.domains[var], key=lambda word: self.constrained_values(word, var, assignment))
         # raise NotImplementedError
 
     def constrained_values(self, word, var, assignment):
@@ -260,7 +255,8 @@ class CrosswordCreator():
 
             i, j = self.crossword.overlaps[var, neighbor]
             # Get the number of words from the neighbor that are not consistent with the given word
-            output += len([word2 for word2 in self.domains[neighbor] if word[i] != word2[j]])
+            # That is, where the overlapping letters are not the same, or if the word in the neighbor's domain equals the current word
+            output += len([word2 for word2 in self.domains[neighbor] if word[i] != word2[j] or word == word2])
         
         return output
 
@@ -272,8 +268,13 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        # For testing purposes only
-        for var in self.crossword.variables:
+        # Create a new list of variables sorted by # of values in domain, followed by highest degree (i.e. most neighbors)
+        # For sorting purposes, we use a lambda function that returns a tuple of the # of values in the domain and the # of neighbors
+        # We set the # of neighbors to negative so that our list will be sorted in descending order of the # of neighbors
+        # Docs: https://docs.python.org/3/howto/sorting.html
+        sorted_variables = sorted(self.crossword.variables, key=lambda var: (len(self.domains[var]), -len(self.crossword.neighbors(var))))
+        # Now we can iterate through the sorted_variables
+        for var in sorted_variables:
             if var not in assignment or not assignment[var]:
                 return var
         # raise NotImplementedError
@@ -293,6 +294,10 @@ class CrosswordCreator():
 
         # Select an unassigned variable
         var = self.select_unassigned_variable(assignment)
+        # print(assignment)
+        # print(f'checking for {var} - domain: {len(self.order_domain_values(var, assignment))}')
+        # print(f'neighbors: {self.crossword.neighbors(var)}')
+        # print()
         
         # Iterate through all words from the variable domain
         for word in self.order_domain_values(var, assignment):

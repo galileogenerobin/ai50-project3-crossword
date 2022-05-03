@@ -252,7 +252,30 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
-        raise NotImplementedError
+        # Check if assignment is complete
+        if self.assignment_complete(assignment):
+            return assignment
+
+        # Select an unassigned variable
+        var = self.select_unassigned_variable(assignment)
+        
+        # Iterate through all words from the variable domain
+        for word in self.order_domain_values(var, assignment):
+            # Create a copy of the assignment
+            new_assignment = assignment.copy()
+            # Assign the word to the variable
+            new_assignment[var] = word
+            # Check if new assignment is consistent
+            if self.consistent(new_assignment):
+                # If consistent, recursively assign more variables; if no inconsistency found along the way, return result
+                result = self.backtrack(new_assignment)
+                if result:
+                    return result
+                # Since we created a copy of the assignment above, no need to manually revert the assignment when we backtrack
+
+        # If the assignment was not completed along the way for all words, return None
+        return None
+        # raise NotImplementedError
 
 
 def main():

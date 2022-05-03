@@ -269,7 +269,8 @@ class CrosswordCreator():
         # For sorting purposes, we use a lambda function that returns a tuple of the # of values in the domain and the # of neighbors
         # We set the # of neighbors to negative so that our list will be sorted in descending order of the # of neighbors
         # Docs: https://docs.python.org/3/howto/sorting.html
-        sorted_variables = sorted(self.crossword.variables, key=lambda var: (len(self.domains[var]), -len(self.crossword.neighbors(var))))
+        sorted_variables = sorted(self.crossword.variables, key=lambda var: (
+            len(self.domains[var]), -len(self.crossword.neighbors(var))))
         # Now we can iterate through the sorted_variables
         for var in sorted_variables:
             if var not in assignment or not assignment[var]:

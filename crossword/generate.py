@@ -200,9 +200,6 @@ class CrosswordCreator():
         # Iterate through all variables in the assignment and check consistency with its neighbors
         for v1 in assignment:
             word = assignment[v1]
-            # If no assigned value yet, skip this variable
-            if not word:
-                continue
             
             # If with assigned value...
             # ... 1. check if duplicate value exists in assignment
